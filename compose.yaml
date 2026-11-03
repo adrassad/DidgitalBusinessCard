@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: dbc
     volumes:
       - db_data:/var/lib/postgresql
+      - ./prisma/docker/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:55433:5432"
     healthcheck:
@@ -17,18 +18,31 @@ services:
       timeout: 3s
       retries: 30
 
-  app:
-    build: .
+  init:
+    build:
+      context: .
+      target: init
     environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://dbc_app:dbc_app@db:5432/dbc
-    ports:
-      - "127.0.0.1:3000:3000"
+      DATABASE_URL: postgresql://dbc:dbc@db:5432/dbc
     depends_on:
       db:
         condition: service_healthy
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      target: runtime
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://dbc_app:dbc_app@db:5432/dbc
+      GRAPHQL_SANDBOX_ENABLED: "true"
+      PROFILE_SLUG: andrey-sharapov
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
 
 volumes:
   db_data:
-    external: true
-    name: digital-business-card-db-data

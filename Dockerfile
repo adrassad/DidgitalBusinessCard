@@ -3,9 +3,14 @@ WORKDIR /app
 COPY package.json package-lock.json prisma.config.ts tsconfig.json ./
 COPY prisma ./prisma
 COPY src ./src
-RUN npm ci && npx prisma generate && npx tsc -p tsconfig.json
+COPY scripts/init.sh /init.sh
+RUN npm ci && npx prisma generate && npx tsc -p tsconfig.json && chmod +x /init.sh
 
-FROM node:24.22.1-trixie-slim
+FROM build AS init
+USER node
+ENTRYPOINT ["/init.sh"]
+
+FROM node:24.22.1-trixie-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
