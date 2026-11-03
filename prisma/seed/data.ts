@@ -39,6 +39,12 @@ export interface SeedData {
     startDate: Date;
     endDate: Date | null;
     sortOrder: number;
+    achievements: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      sortOrder: number;
+    }>;
   }>;
   education: Array<{
     id: string;
@@ -62,7 +68,6 @@ export interface SeedData {
     level: SkillLevel;
     sortOrder: number;
   }>;
-
 }
 
 function skill(
@@ -151,6 +156,22 @@ export const seedData: SeedData = {
       startDate: month(2017, 4),
       endDate: null,
       sortOrder: 1,
+      achievements: [
+        {
+          id: 'c3a8e1f4-7b2d-4e19-8a60-1d5f9c2b7e41',
+          title: 'Перевод филиалов в новую учётную систему',
+          description:
+            'Благодарность управляющей компании ДЭФО за работу по переводу филиалов в новую учётную систему.',
+          sortOrder: 1,
+        },
+        {
+          id: '9b6d0c55-2e74-4a3f-91c8-6f0a4d8e2b17',
+          title: 'Благодарность за вклад в развитие торговой марки ДЭФО',
+          description:
+            'Благодарность 2024 года за вклад и высокую эффективность в развитии торговой марки ДЭФО.',
+          sortOrder: 2,
+        },
+      ],
     },
     {
       id: ids.experience.blankt,
@@ -169,6 +190,7 @@ export const seedData: SeedData = {
       startDate: month(2016, 2),
       endDate: month(2017, 4),
       sortOrder: 2,
+      achievements: [],
     },
     {
       id: ids.experience.eliteProfit,
@@ -188,6 +210,7 @@ export const seedData: SeedData = {
       startDate: month(2006, 2),
       endDate: month(2013, 12),
       sortOrder: 3,
+      achievements: [],
     },
   ],
 
@@ -259,5 +282,4 @@ export const seedData: SeedData = {
     skill('React', 'APPLICATION_DEVELOPMENT', SkillLevel.INTERMEDIATE, 2),
     skill('Telegram Bot Development', 'AUTOMATION_AND_BOTS', SkillLevel.ADVANCED, 1),
   ],
-
 };

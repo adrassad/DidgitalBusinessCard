@@ -91,6 +91,24 @@ export async function applySeed(prisma: PrismaClient, data: SeedData): Promise<v
           sortOrder: experience.sortOrder,
         },
       });
+      for (const achievement of experience.achievements) {
+        await tx.achievement.upsert({
+          where: { id: achievement.id },
+          create: {
+            id: achievement.id,
+            experienceId: experience.id,
+            title: achievement.title,
+            description: achievement.description,
+            sortOrder: achievement.sortOrder,
+          },
+          update: {
+            experienceId: experience.id,
+            title: achievement.title,
+            description: achievement.description,
+            sortOrder: achievement.sortOrder,
+          },
+        });
+      }
     }
     
     for (const item of data.education) {

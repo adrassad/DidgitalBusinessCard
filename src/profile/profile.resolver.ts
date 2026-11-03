@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { EducationModel, ExperienceModel, ProfileLinkModel, ProfileModel, ProjectModel, SkillModel } from './models/profile.model';
+import { AchievementModel, EducationModel, ExperienceModel, ProfileLinkModel, ProfileModel, ProjectModel, SkillModel } from './models/profile.model';
 import { ProfileService } from './profile.service';
 
 @Resolver(() => ProfileModel)
@@ -21,6 +21,7 @@ export class ProfileResolver {
   projects(@Parent() profile: ProfileModel): Promise<ProjectModel[]> {
     return this.profiles.getProjects(profile.id);
   }
+
   @ResolveField(() => [ExperienceModel])
   experience(@Parent() profile: ProfileModel): Promise<ExperienceModel[]> {
     return this.profiles.getExperiences(profile.id);
@@ -34,5 +35,16 @@ export class ProfileResolver {
   @ResolveField(() => [SkillModel])
   skills(@Parent() profile: ProfileModel): Promise<SkillModel[]> {
     return this.profiles.getSkills(profile.id);
+  }
+
+}
+
+@Resolver(() => ExperienceModel)
+export class ExperienceResolver {
+  constructor(@Inject(ProfileService) private readonly profiles: ProfileService) {}
+
+  @ResolveField(() => [AchievementModel])
+  achievements(@Parent() experience: ExperienceModel): Promise<AchievementModel[]> {
+    return this.profiles.getAchievements(experience.id);
   }
 }

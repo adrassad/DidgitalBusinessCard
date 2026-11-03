@@ -110,6 +110,21 @@ export class EducationModel {
 }
 
 @ObjectType()
+export class AchievementModel {
+  @Field(() => ID)
+  id!: string;
+
+  @Field(() => String)
+  title!: string;
+
+  @Field(() => String, { nullable: true })
+  description!: string | null;
+
+  @Field(() => Int)
+  sortOrder!: number;
+}
+
+@ObjectType()
 export class SkillCategoryModel {
   @Field(() => ID)
   id!: string;

@@ -36,6 +36,13 @@ export class ProfileRepository {
     });
   }
 
+  findAchievements(experienceId: string) {
+    return this.prisma.achievement.findMany({
+      where: { experienceId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+  
   findSkills(profileId: string) {
     return this.prisma.skill.findMany({
       where: { profileId },

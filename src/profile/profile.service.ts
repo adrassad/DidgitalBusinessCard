@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env';
 import { ProfileRepository } from './profile.repository';
-import type { EducationModel, ExperienceModel, ProfileLinkModel, ProfileModel, ProjectModel, SkillModel } from './models/profile.model';
+import type { AchievementModel, EducationModel, ExperienceModel, ProfileLinkModel, ProfileModel, ProjectModel, SkillModel } from './models/profile.model';
 
 @Injectable()
 export class ProfileService {
@@ -69,6 +69,16 @@ export class ProfileService {
       const monthNumber = String(value.getUTCMonth() + 1).padStart(2, '0');
       return `${year}-${monthNumber}`;
     }
+  }
+
+  async getAchievements(experienceId: string): Promise<AchievementModel[]> {
+    const achievements = await this.profiles.findAchievements(experienceId);
+    return achievements.map((achievement) => ({
+      id: achievement.id,
+      title: achievement.title,
+      description: achievement.description,
+      sortOrder: achievement.sortOrder,
+    }));
   }
 
   async getEducation(profileId: string): Promise<EducationModel[]> {
