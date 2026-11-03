@@ -1,24 +1,34 @@
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import type { Env } from '../config/env';
 import { formatGraphqlError } from './format-error';
 import './enums';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      path: '/graphql',
-      autoSchemaFile: true,
-      sortSchema: true,
-      graphiql: false,
-      playground: false,
-      formatError: (formatted, error) =>
-        formatGraphqlError(
-          formatted,
-          error,
-          process.env['NODE_ENV'] === 'production',
-        ),
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>): ApolloDriverConfig => {
+        const sandbox = config.get('GRAPHQL_SANDBOX_ENABLED', { infer: true });
+        const production = config.get('NODE_ENV', { infer: true }) === 'production';
+        return {
+          path: '/graphql',
+          autoSchemaFile: true,
+          sortSchema: true,
+          introspection: sandbox,
+          playground: false,
+          graphiql: false,
+          plugins: (sandbox
+            ? [ApolloServerPluginLandingPageLocalDefault({ embed: true })]
+            : []) as ApolloDriverConfig['plugins'],
+          formatError: (formatted, error) =>
+            formatGraphqlError(formatted, error, production),
+        };
+      },
     }),
   ],
 })
