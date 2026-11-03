@@ -1,0 +1,154 @@
+generator client {
+    provider            = "prisma-client"
+    output              = "../src/generated/prisma"
+    moduleFormat        = "cjs"
+    importFileExtension = "js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+enum LinkType {
+    GITHUB
+    LINKEDIN
+    TELEGRAM
+    X
+    EMAIL
+}
+
+enum SkillCategoryCode {
+    PROGRAMMING_LANGUAGES
+    BACKEND_DEVELOPMENT
+    APIS_AND_INTEGRATIONS
+    DATABASES
+    DEVOPS_AND_TOOLS
+    BLOCKCHAIN_AND_DEFI
+    APPLICATION_DEVELOPMENT
+    AUTOMATION_AND_BOTS
+}
+
+enum SkillLevel {
+    ADVANCED
+    INTERMEDIATE
+}
+
+enum ProjectStatus {
+    ACTIVE
+    COMPLETED
+    ARCHIVED
+}
+
+model Profile {
+    id          String        @id @default(uuid(7)) @db.Uuid
+    slug        String        @unique
+    name        String
+    headline    String
+    description String
+    links       ProfileLink[]
+    skills      Skill[]
+    experiences Experience[]
+    projects    Project[]
+    education   Education[]
+
+    @@map("profiles")
+}
+
+model ProfileLink {
+    id        String   @id @default(uuid(7)) @db.Uuid
+    profileId String   @map("profile_id") @db.Uuid
+    type      LinkType
+    url       String
+    label     String
+    sortOrder Int      @map("sort_order")
+    profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+    @@unique([profileId, url])
+    @@index([profileId, sortOrder])
+    @@map("profile_links")
+}
+
+model SkillCategory {
+    id        String            @id @default(uuid(7)) @db.Uuid
+    code      SkillCategoryCode @unique
+    name      String
+    sortOrder Int               @map("sort_order")
+    skills    Skill[]
+
+    @@map("skill_categories")
+}
+
+model Skill {
+    id         String        @id @default(uuid(7)) @db.Uuid
+    profileId  String        @map("profile_id") @db.Uuid
+    categoryId String        @map("category_id") @db.Uuid
+    name       String
+    level      SkillLevel
+    sortOrder  Int           @map("sort_order")
+    profile    Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+    category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+    @@unique([profileId, name])
+    @@index([profileId, sortOrder])
+    @@index([categoryId])
+    @@map("skills")
+}
+
+model Experience {
+    id               String        @id @default(uuid(7)) @db.Uuid
+    profileId        String        @map("profile_id") @db.Uuid
+    startDate        DateTime      @map("start_date") @db.Date
+    endDate          DateTime?     @map("end_date") @db.Date
+    sortOrder        Int           @map("sort_order")
+    company          String
+    position         String
+    description      String
+    responsibilities String[]      @default([])
+    profile          Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+    achievements     Achievement[]
+
+    @@index([profileId, sortOrder])
+    @@map("experiences")
+}
+
+model Achievement {
+    id           String     @id @default(uuid(7)) @db.Uuid
+    experienceId String     @map("experience_id") @db.Uuid
+    sortOrder    Int        @map("sort_order")
+    title        String
+    description  String?
+    experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+    @@index([experienceId, sortOrder])
+    @@map("achievements")
+}
+
+model Project {
+    id            String        @id @default(uuid(7)) @db.Uuid
+    profileId     String        @map("profile_id") @db.Uuid
+    repositoryUrl String?       @map("repository_url")
+    projectUrl    String?       @map("project_url")
+    status        ProjectStatus
+    sortOrder     Int           @map("sort_order")
+    name          String
+    description   String
+    profile       Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+    @@index([profileId, sortOrder])
+    @@map("projects")
+}
+
+model Education {
+    id             String  @id @default(uuid(7)) @db.Uuid
+    profileId      String  @map("profile_id") @db.Uuid
+    graduationYear Int     @map("graduation_year") @db.SmallInt
+    sortOrder      Int     @map("sort_order")
+    institution    String
+    degree         String?
+    specialization String?
+    description    String?
+    profile        Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+    @@index([profileId, sortOrder])
+    @@map("education")
+}
