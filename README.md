@@ -40,3 +40,159 @@ Apollo Sandbox открывается в браузере по этому адр
 
     curl -s http://127.0.0.1:3000/health
     curl -s http://127.0.0.1:3000/health/ready
+
+## Примеры GraphQL
+
+Схема содержит query `profile`. Slug задаёт `PROFILE_SLUG`. Introspection возвращает `mutationType: null`.
+
+Полная визитка читается одним запросом:
+
+    {
+      profile {
+        id
+        slug
+        name
+        headline
+        description
+        links {
+          id
+          type
+          url
+          label
+          sortOrder
+        }
+        skills {
+          id
+          name
+          level
+          sortOrder
+          category {
+            id
+            code
+            name
+          }
+        }
+        experience {
+          id
+          company
+          position
+          description
+          responsibilities
+          startDate
+          endDate
+          isCurrent
+          sortOrder
+          achievements {
+            id
+            title
+            description
+            sortOrder
+          }
+        }
+        education {
+          id
+          institution
+          degree
+          specialization
+          description
+          graduationYear
+          sortOrder
+        }
+        projects {
+          id
+          name
+          description
+          repositoryUrl
+          projectUrl
+          status
+          sortOrder
+        }
+      }
+    }
+
+Ответ этого запроса для `andrey-sharapov`: имя «Андрей Шарапов», `links` — 4, `skills` — 25, `experience` — 3, `education` — 3, `projects` — 1.
+
+Профиль:
+
+    { profile { slug name headline } }
+
+    {
+      "data": {
+        "profile": {
+          "slug": "andrey-sharapov",
+          "name": "Андрей Шарапов",
+          "headline": "Разработка backend и интеграции API"
+        }
+      }
+    }
+
+Опыт. Дата приходит как `YYYY-MM`. Пустой `endDate` даёт `isCurrent: true`. У части мест работы `achievements` — пустой массив.
+
+    {
+      profile {
+        experience {
+          company
+          position
+          startDate
+          endDate
+          isCurrent
+          sortOrder
+          achievements {
+            title
+            description
+            sortOrder
+          }
+        }
+      }
+    }
+
+    {
+      "data": {
+        "profile": {
+          "experience": [
+            {
+              "company": "ДЭФО офисная мебель",
+              "position": "Ведущий программист 1С",
+              "startDate": "2017-04",
+              "endDate": null,
+              "isCurrent": true,
+              "sortOrder": 1,
+              "achievements": [
+                {
+                  "title": "Перевод филиалов в новую учётную систему",
+                  "description": "Благодарность управляющей компании ДЭФО за работу по переводу филиалов в новую учётную систему.",
+                  "sortOrder": 1
+                },
+                {
+                  "title": "Благодарность за вклад в развитие торговой марки ДЭФО",
+                  "description": "Благодарность 2024 года за вклад и высокую эффективность в развитии торговой марки ДЭФО.",
+                  "sortOrder": 2
+                }
+              ]
+            },
+            {
+              "company": "БЛАНКТ",
+              "position": "Программист 1С",
+              "startDate": "2016-02",
+              "endDate": "2017-04",
+              "isCurrent": false,
+              "sortOrder": 2,
+              "achievements": []
+            },
+            {
+              "company": "Элит-профит",
+              "position": "Сервис-инженер / программист 1С",
+              "startDate": "2006-02",
+              "endDate": "2013-12",
+              "isCurrent": false,
+              "sortOrder": 3,
+              "achievements": []
+            }
+          ]
+        }
+      }
+    }
+
+`profile(slug: "andrey-sharapov")` возвращает `Unknown argument "slug" on field "Query.profile".`  
+`{ skills { name } }` возвращает `Cannot query field "skills" on type "Query".`  
+`{ profile { projects { url } } }` возвращает `Cannot query field "url" on type "ProjectModel".`
