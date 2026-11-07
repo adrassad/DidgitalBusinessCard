@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import type { Env } from '../config/env';
 import { formatGraphqlError } from './format-error';
+import { queryGuard } from './query-guard';
 import './enums';
 
 @Module({
@@ -25,6 +26,12 @@ import './enums';
           plugins: (sandbox
             ? [ApolloServerPluginLandingPageLocalDefault({ embed: true })]
             : []) as ApolloDriverConfig['plugins'],
+          validationRules: [
+            queryGuard(
+              config.get('GRAPHQL_MAX_COMPLEXITY', { infer: true }),
+              12,
+            ),
+          ],
           formatError: (formatted, error) =>
             formatGraphqlError(formatted, error, production),
         };
