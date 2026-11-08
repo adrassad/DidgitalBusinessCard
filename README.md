@@ -10,6 +10,22 @@ Read-only GraphQL API цифровой визитки. PostgreSQL хранит �
 
 Роль `dbc` владеет схемой и выполняет миграции и seed. Роль `dbc_app` используется приложением и имеет только `SELECT`.
 
+## Требования
+
+Node.js `>=24.11`. Образ приложения — `node:24.22.1`. База запускается через Docker.
+
+## Локальная установка
+
+Из корня репозитория:
+
+    npm ci
+    npm run typecheck
+
+`npm ci` не создаёт `src/generated/prisma`. `npm run typecheck` и `npm run build` сначала выполняют `prisma generate`. Генерация клиента, `npm run typecheck`, `npm test` и `npx prisma validate` проходят без `.env`. `npx prisma migrate deploy` и `npm run db:seed` требуют `DATABASE_URL`.
+
+    npm test
+    npm run build
+
 ## Запуск
 
 Нужен Docker. Из корня репозитория:
@@ -29,6 +45,8 @@ Apollo Sandbox открывается в браузере по этому адр
 `GRAPHQL_SANDBOX_ENABLED` — включает Sandbox и introspection. В Compose задано `true`, потому что `NODE_ENV=production` иначе выключает его.  
 `PORT` — порт API, по умолчанию `3000`.  
 `CORS_ORIGINS` — список origin через запятую. Пустая строка оставляет CORS выключенным.
+
+`GRAPHQL_MAX_COMPLEXITY` — лимит сложности запроса, по умолчанию `250`. В Compose не задан.
 
 ## Проверка
 

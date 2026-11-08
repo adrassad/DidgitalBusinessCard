@@ -4,7 +4,7 @@ COPY package.json package-lock.json prisma.config.ts tsconfig.json ./
 COPY prisma ./prisma
 COPY src ./src
 COPY scripts/init.sh /init.sh
-RUN npm ci && npx prisma generate && npx tsc -p tsconfig.json && chmod +x /init.sh
+RUN npm ci && npm run build && chmod +x /init.sh
 
 FROM build AS init
 USER node
@@ -14,9 +14,8 @@ FROM node:24.22.1-trixie-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
-COPY --from=build /app/node_modules ./node_modules
+RUN npm ci --omit=dev --omit=optional
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/src/generated ./src/generated
 USER node
 EXPOSE 3000
 CMD ["node", "dist/src/main.js"]

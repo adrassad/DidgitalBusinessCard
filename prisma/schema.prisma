@@ -94,6 +94,8 @@ model Skill {
     @@map("skills")
 }
 
+// Month precision and date order are enforced in
+// prisma/migrations/0001_init/migration.sql and are not represented here.
 model Experience {
     id               String        @id @default(uuid(7)) @db.Uuid
     profileId        String        @map("profile_id") @db.Uuid
@@ -138,6 +140,8 @@ model Project {
     @@map("projects")
 }
 
+// graduation_year range is enforced in
+// prisma/migrations/0001_init/migration.sql and is not represented here.
 model Education {
     id             String  @id @default(uuid(7)) @db.Uuid
     profileId      String  @map("profile_id") @db.Uuid
